@@ -48,7 +48,7 @@ def post_req_account_updates(msg):
 
 
 if __name__ == '__main__':
-    con = ibConnection()
+    con = ibConnection(clientId=999)
     #con.enableLogging()
     con.register(cash_handler, 'UpdateAccountValue')
     con.register(tick_handler, message.tickSize, message.tickPrice)

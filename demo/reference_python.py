@@ -189,7 +189,7 @@ def ref(method):
 
 
 class ReferenceApp:
-    def __init__(self, host='localhost', port=7496, clientId=0):
+    def __init__(self, host='localhost', port=7496, clientId=999):
         self.host = host
         self.port = port
         self.clientId = clientId
@@ -255,6 +255,10 @@ class ReferenceApp:
         self.connection.reqMktData(1, contract, '', False)
 
     @ref
+    def reqFundamentalData(self, tickerid, contract_details, report_type):
+        self.connection.reqFundamentalData(tickerid, contract_details, report_type)
+
+    @ref
     def reqHistoricalData(self):
         contract = Contract()
         contract.m_symbol = 'QQQQ'
@@ -276,27 +280,40 @@ class ReferenceApp:
         sleep(5)
         self.connection.eDisconnect()
 
+    # def create_contract(self, symbol, secType, exchange, currency,
+    #                     right = None, strike = None, expiry = None,
+    #                     multiplier = None, tradingClass = None,
+    #                     localSymbol = None, includeExpired=None):
 
 if __name__ == '__main__':
     app = ReferenceApp()
-    methods = argv[1:]
+    app.eConnect()
+    contract = Contract()  #
+    contract.m_symbol = 'AAPL'
+    contract.m_currency = 'USD'
+    contract.m_secType = 'STK'
+    contract.m_exchange = 'SMART'
+    app.reqFundamentalData('1', contract, "RESC")
 
-    if not methods:
-        methods = ['eConnect', 'eDisconnect', ]
-    elif methods == ['all']:
-        methods = allMethods
-    if 'eConnect' not in methods:
-        methods.insert(0, 'eConnect')
-    if 'eDisconnect' not in methods:
-        methods.append('eDisconnect')
-
-    print(('### calling functions:', str.join(', ', methods)))
-    for mname in methods:
-        call = getattr(app, mname, None)
-        if call is None:
-            print(('### warning: no call %s' % (mname, )))
-        else:
-            print(('## calling', call.__func__.__name__))
-            call()
-            print(('## called', call.__func__.__name__))
+    app.eDisconnect()
+    # methods = argv[1:]
+    #
+    # if not methods:
+    #     methods = ['eConnect', 'eDisconnect', ]
+    # elif methods == ['all']:
+    #     methods = allMethods
+    # if 'eConnect' not in methods:
+    #     methods.insert(0, 'eConnect')
+    # if 'eDisconnect' not in methods:
+    #     methods.append('eDisconnect')
+    #
+    # print(('### calling functions:', str.join(', ', methods)))
+    # for mname in methods:
+    #     call = getattr(app, mname, None)
+    #     if call is None:
+    #         print(('### warning: no call %s' % (mname, )))
+    #     else:
+    #         print(('## calling', call.__func__.__name__))
+    #         call()
+    #         print(('## called', call.__func__.__name__))
 
