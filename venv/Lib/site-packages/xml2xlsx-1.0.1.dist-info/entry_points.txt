@@ -1,0 +1,3 @@
+[console_scripts]
+xml2xlsx = xml2xlsx.command_line:main
+

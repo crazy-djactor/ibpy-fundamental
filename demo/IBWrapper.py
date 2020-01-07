@@ -483,9 +483,7 @@ class contract():
     
     
     
-    
-    
-    
+
     
     
     

@@ -2,12 +2,13 @@ import pandas as pd
 import time
 from IBWrapper import IBWrapper, contract
 from ib.ext.EClientSocket import EClientSocket
+
 from ib.ext.ScannerSubscription import ScannerSubscription
 import re
 
 
 stocks=[
-'1'
+'700'
 ]
 if __name__ == '__main__':
     for x in stocks:

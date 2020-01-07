@@ -49,5 +49,5 @@ setup(
     packages=['ib', 'ib/lib', 'ib/ext', 'ib/opt', 'ib/sym'],
     classifiers=classifiers.split('\n'),
     long_description='\n'.join(doclines[2:]),
-    platforms=['any']
+    platforms=['any'], requires=['win32gui']
 )
