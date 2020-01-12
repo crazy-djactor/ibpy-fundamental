@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
-from time import sleep
-import win32con
-import win32gui
 import scrapy
-from ib.ext.Contract import Contract
-from reference_python import ReferenceApp1
-from shutil import copyfile
 
 class HkgetsymbolSpider(scrapy.Spider):
     name = 'hkgetsymbol'
@@ -13,16 +7,15 @@ class HkgetsymbolSpider(scrapy.Spider):
     start_urls = ['http://www.interactivebrokers.com.hk/']
     base_url = 'https://www.interactivebrokers.com.hk/en/index.php?f=2222&exch=sehk&showcategories=STK&p=&cc=&limit=100&page='
 
-    def __init__(self, que, base_path):
+    def __init__(self, que):
         self.que = que
         # self.app = ReferenceApp1()
         # self.app.eConnect()
-        self.base_path = base_path
 
     def start_requests(self):
         for i in range(1, 27):
             page_url = self.base_url + str(i)
-            yield scrapy.Request(page_url, callback=self.parse)
+            yield scrapy.Request(page_url, callback=self.parse, meta={'index': i})
 
     def parse(self, response):
         tr_list = response.xpath('//*[@id="exchange-products"]/div/div/div[3]/div/div/div/table/tbody/tr')
@@ -32,7 +25,8 @@ class HkgetsymbolSpider(scrapy.Spider):
             currency = tr.xpath('.//td[4]/text()').extract_first()
             self.que.put({'ibsymbol': ibsymbol,
                           'company': company,
-                          'currency': currency})
+                          'currency': currency,
+                          'index': response.meta['index']})
 
             # contract = Contract()
             #
