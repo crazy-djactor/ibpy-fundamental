@@ -14,7 +14,7 @@ from reference_python import ReferenceApp
 from ib.ext.Contract import Contract
 from shutil import copyfile
 import mysql.connector
-import time
+import xml.etree.ElementTree as ET
 
 
 class PutSQLWorker(threading.Thread):
@@ -37,6 +37,21 @@ class PutSQLWorker(threading.Thread):
             f = open(str_src, 'w+')
             f.write(data["data"])
             f.close()
+
+            tree = ET.fromstring(data["data"])
+            company = tree.findall('./Company/CoName/Name')
+            field0 = company[0].text
+            field1 = company[0].attrib['type']
+            security = tree.findall('./Company/SecurityInfo/Security')
+            field4 = security[0].attrib['code']
+            exchange = tree.findall('./Company/SecurityInfo/Security/Exchange')
+            field5 = exchange[0].text
+            field6 = exchange[0].attrib['code']
+            country = tree.findall('./Company/SecurityInfo/Security/Country')
+            field7 = country[0].text
+            field8 = country[0].attrib['code']
+            field9 = country[0].attrib['set']
+
             str_dst = "{0}\\xlsx\\{1}.xlsx".format(self.base_path, str(data["ibsymbol"]))
             copyfile(self.base_path + '\\Book2.xlsx',
                      str_dst)
@@ -50,8 +65,18 @@ class PutSQLWorker(threading.Thread):
             ws = wb.Worksheets("Sheet1")
 
             table_name = "ib_fundamentaldata{}".format(str(data["index"]))
+
             for v in ws.UsedRange.Value[1:]:
-                params2 = [str(item) for item in v]
+                params2 = [str(item) for item in v[2:]]
+                params2.insert(0, field0)
+                params2.insert(1, field1)
+                params2[4] = field4
+                params2[5] = field5
+                params2[6] = field6
+                params2[7] = field7
+                params2[8] = field8
+                params2[9] = field9
+
                 cursor = cnx.cursor()
                 sql = "INSERT INTO " + table_name + " VALUES ('" + "','".join(params2) + "');"
                 cursor.execute(sql)
@@ -95,19 +120,21 @@ class EveryWorker(threading.Thread):
             app.reqFundamentalData('8001', contract, "RESC")
             sleep(10)
 
-            if fundamentaldata == app.wrapper.fundamental_Data_data:
-                self.qu.put(company_info)
+            print("MYERROR-CODE-{} {}".format(app.wrapper.error_code, app.wrapper.error_msg))
+            if app.wrapper.error_code == 430:
+                # if fundamentaldata == app.wrapper.fundamental_Data_data:
+                #     self.qu.put(company_info)
                 self.qu.task_done()
                 continue
-
-            fundamentaldata = app.wrapper.fundamental_Data_data
-            data = {
-                "ibsymbol": company_info["ibsymbol"],
-                "index": company_info["index"],
-                "data": fundamentaldata,
-            }
-            self.sqlque.put(data)
-            self.qu.task_done()
+            else:
+                fundamentaldata = app.wrapper.fundamental_Data_data
+                data = {
+                    "ibsymbol": company_info["ibsymbol"],
+                    "index": company_info["index"],
+                    "data": fundamentaldata,
+                }
+                self.sqlque.put(data)
+                self.qu.task_done()
         self.qu.task_done()
         app.eDisconnect()
 

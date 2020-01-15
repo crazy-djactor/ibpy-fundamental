@@ -32,7 +32,8 @@ class ReferenceWrapper(EWrapper):
     def __init__(self):
         self.fundamental_Data_data = ""
         self.fundamental_Data_reqId = ""
-        self.error_code = ""
+        self.error_code = 0
+        self.error_msg = ""
 
     def tickPrice(self, tickerId, field, price, canAutoExecute):
         showmessage('tickPrice', vars())
@@ -97,6 +98,7 @@ class ReferenceWrapper(EWrapper):
     def error(self, id=None, errorCode=None, errorMsg=None):
         showmessage('error', vars())
         self.error_code = errorCode
+        self.error_msg = errorMsg
 
     def error_0(self, strvalue=None):
         showmessage('error_0', vars())
@@ -149,6 +151,8 @@ class ReferenceWrapper(EWrapper):
     def fundamentalData(self, reqId, data):
         self.fundamental_Data_data = data
         self.fundamental_Data_reqId = reqId
+        self.error_code = 0
+        self.error_msg = "OK"
         showmessage('fundamentalData', vars())
 
     def marketDataType(self, reqId, marketDataType):

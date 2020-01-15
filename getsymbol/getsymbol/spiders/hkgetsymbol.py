@@ -13,9 +13,10 @@ class HkgetsymbolSpider(scrapy.Spider):
         # self.app.eConnect()
 
     def start_requests(self):
-        for i in range(1, 27):
-            page_url = self.base_url + str(i)
-            yield scrapy.Request(page_url, callback=self.parse, meta={'index': i})
+        page_num = 27
+        for i in range(page_num):
+            page_url = self.base_url + str(i + 1)
+            yield scrapy.Request(page_url, callback=self.parse, meta={'index': i + 1})
 
     def parse(self, response):
         tr_list = response.xpath('//*[@id="exchange-products"]/div/div/div[3]/div/div/div/table/tbody/tr')
